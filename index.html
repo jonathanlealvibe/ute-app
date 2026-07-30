@@ -31,6 +31,16 @@
   const hide = () => { const s=document.getElementById('splash'); s.style.opacity=0; setTimeout(()=>s.remove(), 450); };
   f.addEventListener('load', () => setTimeout(hide, 600));
   setTimeout(hide, 7000);
+  // Reload content when the app is reopened after being backgrounded, so a
+  // suspended PWA never resumes showing a stale copy of the page.
+  let hiddenAt = 0;
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') { hiddenAt = Date.now(); }
+    else if (hiddenAt && Date.now() - hiddenAt > 10 * 60 * 1000) {
+      try { f.contentWindow.location.reload(); }
+      catch (e) { f.src = f.src; }
+    }
+  });
 </script>
 </body>
 </html>
